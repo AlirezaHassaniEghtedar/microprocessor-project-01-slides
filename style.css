@@ -1,0 +1,174 @@
+/* =====================================================================
+   style.css — کنار slides.md قرار بگیرد (Slidev خودش آن را بارگذاری می‌کند)
+   ===================================================================== */
+
+:root {
+  --g: #39ff88;       /* سبز LED */
+  --amber: #ffc24b;
+  --red: #ff5c5c;
+  --ink: #f2fbf6;
+  --text: #cfe5d9;
+  --muted: #8fb3a2;
+  --faint: #5f8272;
+  --line: #14382a;
+  --panel: #08201a;
+}
+
+/* ---------- راست‌به‌چپ ---------- */
+.slidev-layout {
+  direction: rtl;
+  text-align: right;
+  color: var(--text);
+  background: radial-gradient(ellipse at 50% -10%, #0e2a1f 0%, #061510 55%, #020806 100%);
+}
+.slidev-layout pre,
+.slidev-layout .slidev-code,
+.slidev-layout .slidev-code-wrapper,
+.ltr {
+  direction: ltr !important;
+  text-align: left !important;
+  unicode-bidi: isolate;
+}
+.slidev-layout :not(pre) > code {
+  direction: ltr;
+  unicode-bidi: isolate;
+  color: var(--g);
+  background: rgba(57, 255, 136, 0.08);
+  padding: 0.05em 0.4em;
+  border-radius: 4px;
+  font-size: 0.85em;
+  white-space: nowrap;
+}
+.slidev-layout strong { color: var(--ink); font-weight: 700; }
+
+/* ---------- لیست‌ها ---------- */
+.slidev-layout ul { list-style: none; padding: 0; margin: 0; }
+.slidev-layout li { position: relative; padding-inline-start: 1.5rem; margin: 0.7rem 0; }
+.slidev-layout li::marker { content: ''; }
+.slidev-layout li::before {
+  content: '';
+  position: absolute;
+  inset-inline-start: 0;
+  top: 0.75em;
+  width: 7px;
+  height: 7px;
+  background: var(--g);
+  transform: rotate(45deg);
+}
+
+/* ---------- تایپوگرافی مشترک ---------- */
+.sec { font-size: 0.95rem; font-weight: 500; color: var(--g); margin-bottom: 0.4rem; }
+.sec::before { content: '▍'; margin-inline-end: 0.5rem; }
+.sec.warn { color: var(--amber); }
+.slidev-layout h1.ttl {
+  font-size: 2.3rem;
+  font-weight: 800;
+  line-height: 1.4;
+  color: var(--ink);
+  margin: 0 0 1.6rem 0;
+  padding: 0;
+  border: 0;
+  opacity: 1;
+}
+.mono { font-family: 'JetBrains Mono', monospace; direction: ltr; unicode-bidi: isolate; }
+.card {
+  border: 1px solid var(--line);
+  background: var(--panel);
+  padding: 1rem 1.25rem;
+  border-radius: 6px;
+}
+.callout {
+  border-inline-start: 3px solid var(--g);
+  background: rgba(57, 255, 136, 0.06);
+  padding: 0.7rem 1.2rem;
+}
+.callout.warn { border-color: var(--amber); background: rgba(255, 194, 75, 0.06); }
+
+/* ---------- ریل LED (امضای بصری اسلایدها) ---------- */
+.rail {
+  position: absolute;
+  right: 0; top: 0; bottom: 0;
+  width: 56px;
+  overflow: hidden;
+  pointer-events: none;
+  opacity: 0.75;
+}
+.rail::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: radial-gradient(circle at 28px 20px, rgba(57, 255, 136, 0.25) 0, rgba(57, 255, 136, 0.25) 3px, transparent 4px);
+  background-size: 56px 40px;
+}
+.rail::after {
+  content: '';
+  position: absolute;
+  right: 0; top: 0;
+  width: 56px; height: 40px;
+  background: radial-gradient(circle at 28px 20px, #39ff88 0, #39ff88 3px, rgba(57, 255, 136, 0.35) 4px, transparent 13px);
+  animation: railchase 4s steps(14) infinite;
+}
+@keyframes railchase {
+  from { transform: translateY(0); }
+  to { transform: translateY(560px); }
+}
+
+/* ---------- LED ---------- */
+.led { position: relative; width: 28px; height: 28px; }
+.led .base {
+  position: absolute; inset: 0;
+  border-radius: 50%;
+  border: 2px solid var(--c);
+  background: rgba(255, 255, 255, 0.03);
+  opacity: 0.4;
+}
+.led .glow {
+  position: absolute; inset: 0;
+  border-radius: 50%;
+  background: var(--c);
+  box-shadow: 0 0 16px 5px var(--c);
+  opacity: 0;
+}
+/* هر "اسلات" یک گام زمانی است؛ --s شمارهٔ گام و --c رنگ LED */
+.lring .glow { animation: slot16 3.2s linear infinite; animation-delay: calc(var(--s) * 0.2s); }
+.chase .glow { animation: slot8 1.6s linear infinite; animation-delay: calc(var(--s) * 0.2s); box-shadow: 0 0 10px 3px var(--c); }
+.bline .glow { animation: slot13 3.9s linear infinite; animation-delay: calc(var(--s) * 0.3s); box-shadow: 0 0 22px 7px var(--c); }
+
+@keyframes slot16 { 0%, 6.25% { opacity: 1; } 6.26%, 100% { opacity: 0; } }
+@keyframes slot8  { 0%, 12.5% { opacity: 1; } 12.6%, 100% { opacity: 0; } }
+@keyframes slot13 { 0%, 7.69% { opacity: 1; } 7.7%, 100% { opacity: 0; } }
+
+/* نشانگر فاز در مرکز حلقه */
+.ph1 { animation: ph1 3.2s steps(1, end) infinite; }
+.ph2 { animation: ph2 3.2s steps(1, end) infinite; }
+@keyframes ph1 { 0% { opacity: 1; } 50% { opacity: 0.25; } 100% { opacity: 0.25; } }
+@keyframes ph2 { 0% { opacity: 0.25; } 50% { opacity: 1; } 100% { opacity: 1; } }
+
+/* ---------- شماتیک GPIO → LED ---------- */
+.wire {
+  fill: none;
+  stroke: #39ff88;
+  stroke-width: 2.5;
+  stroke-dasharray: 6 5;
+  animation: flow 0.6s linear infinite, dim 2s step-end infinite;
+}
+@keyframes flow { to { stroke-dashoffset: -11; } }
+@keyframes dim { 0% { opacity: 1; } 50% { opacity: 0.12; } 100% { opacity: 0.12; } }
+.sglow { filter: blur(10px); opacity: 0; animation: vis 2s step-end infinite; }
+.hi { animation: vis 2s step-end infinite; }
+.lo { animation: invis 2s step-end infinite; }
+@keyframes vis { 0% { opacity: 1; } 50% { opacity: 0; } 100% { opacity: 0; } }
+@keyframes invis { 0% { opacity: 0; } 50% { opacity: 1; } 100% { opacity: 1; } }
+
+/* ---------- نمودار زمانی انباشت ---------- */
+.tcursor {
+  position: absolute;
+  top: 0; bottom: 0; left: 0;
+  width: calc(100% / 13);
+  border: 1.5px solid var(--amber);
+  border-radius: 4px;
+  background: rgba(255, 194, 75, 0.08);
+  animation: tcur 3.9s steps(13, end) infinite;
+  pointer-events: none;
+}
+@keyframes tcur { from { transform: translateX(0); } to { transform: translateX(1300%); } }
