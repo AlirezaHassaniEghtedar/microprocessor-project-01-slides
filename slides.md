@@ -16,10 +16,6 @@ fonts:
   mono: 'JetBrains Mono'
 ---
 
-<!-- ============ امضای بصری: «ریل LED» ============
-یک ستون از نقطه‌های LED در حاشیهٔ راست (جهت RTL) که یک نور روی آن می‌دود؛
-همان حرکتی که خود پروژه می‌سازد. استایل‌ها در style.css هستند (کنار همین فایل). -->
-
 <div class="relative flex flex-col items-center justify-center h-full text-center px-20">
 
   <div class="mono text-xs tracking-[0.4em] text-[#39FF88] mb-6">MICROPROCESSOR · GROUP WORK 01</div>
@@ -301,8 +297,8 @@ transition: fade
 
 - <code>digitalWrite(pin, HIGH)</code> روشن کردن LED
 - <code>digitalWrite(pin, LOW)</code> خاموش کردن LED
-- <code>delay(d)</code> توقف برنامه به مدت d میلی‌ثانیه
-- متغیر <code>d</code> مقدار تأخیر را نگه می‌دارد؛ برای تغییر سرعت فقط یک جا ویرایش می‌شود
+- <code>delay(ms)</code> توقف برنامه به مدت ms میلی‌ثانیه
+- یک ثابت، مقدار تأخیر را نگه می‌دارد؛ برای تغییر سرعت فقط یک جا ویرایش می‌شود
 
 </v-clicks>
 
@@ -330,41 +326,87 @@ transition: fade
 <div class="h-full flex flex-col justify-center pr-28 pl-16">
 
 <div class="sec">بخش ۴ — آزمایش اول</div>
-<h1 class="ttl !mb-4">کد رقص نور (نمونهٔ فشرده)</h1>
+<h1 class="ttl !mb-4">کد رقص نور (۱/۲) — ساختار برنامه</h1>
 
-```cpp {1-2|4-6|9-14|15-23|all}
-const int leds[8] = {16, 17, 18, 19, 21, 22, 23, 25};
-const int d = 200;                       // delay per step (ms)
+```cpp {1-3|5-9|11-14|all}
+const int pinsArray[] = {16, 17, 18, 19, 21, 22, 23, 25};
+const int numberOfLeds = 8;
+const int delay = 200;
 
 void setup() {
-  for (int i = 0; i < 8; i++) pinMode(leds[i], OUTPUT);
+  for (int i = 0; i < numberOfLeds; i++) {
+    pinMode(pinsArray[i], OUTPUT);
+  }
 }
 
 void loop() {
-  // phase 1: one LED at a time
-  for (int i = 0; i < 8; i++) {
-    digitalWrite(leds[i], HIGH);
-    delay(d);
-    digitalWrite(leds[i], LOW);
-  }
-  // phase 2: two adjacent LEDs, last pair closes the ring
-  for (int i = 0; i < 8; i++) {
-    int j = (i + 1) % 8;
-    digitalWrite(leds[i], HIGH);
-    digitalWrite(leds[j], HIGH);
-    delay(d);
-    digitalWrite(leds[i], LOW);
-    digitalWrite(leds[j], LOW);
-  }
+  runOneLed();
+  runTwoLeds();
 }
 ```
 
-<div class="text-xs text-[#5F8272] mt-2">در کد اصلی هر دستور خط‌به‌خط نوشته شده؛ این نسخه با آرایه و for همان رفتار را کوتاه‌تر می‌نویسد.</div>
+<style>
+.slidev-code,
+.slidev-code-wrapper,
+pre,
+code {
+  font-size: 15px !important;
+  line-height: 1.5 !important;
+}
+</style>
 
 </div>
 
 <!--
-اینجا ساختار کد آزمایش اول را می‌بینید. آرایهٔ leds شمارهٔ پایه‌ها را نگه می‌دارد و d تأخیر هر گام است. در setup پایه‌ها خروجی می‌شوند. در loop فاز اول هر LED را روشن می‌کند، d میلی‌ثانیه نگه می‌دارد و خاموش می‌کند. فاز دوم دو LED مجاور را با هم روشن و خاموش می‌کند. ما در کد اصلی همهٔ دستورها را خط‌به‌خط نوشتیم؛ این نسخه همان رفتار را با for کوتاه‌تر نشان می‌دهد.
+در ابتدا آرایهٔ شمارهٔ پایه‌ها، تعداد LEDها و مقدار تأخیر را تعریف می‌کنیم. در setup همهٔ پایه‌ها را خروجی می‌کنیم. و loop فقط دو تابع را پشت سر هم صدا می‌زند: اول فاز یک‌LED و بعد فاز دو‌LED.
+-->
+
+---
+transition: fade
+---
+
+<div class="rail"></div>
+
+<div class="h-full flex flex-col justify-center pr-28 pl-16">
+
+<div class="sec">بخش ۴ — آزمایش اول</div>
+<h1 class="ttl !mb-4">کد رقص نور (۲/۲) — دو فاز</h1>
+
+```cpp {1-7|9-18|11|all}
+void runOneLed() {
+  for (int i = 0; i < numberOfLeds; i++) {
+    digitalWrite(pinsArray[i], HIGH);
+    delay(delay);
+    digitalWrite(pinsArray[i], LOW);
+  }
+}
+
+void runTwoLeds() {
+  for (int i = 0; i < numberOfLeds; i++) {
+    int next = (i + 1) % numberOfLeds;
+    digitalWrite(pinsArray[i], HIGH);
+    digitalWrite(pinsArray[next], HIGH);
+    delay(delay);
+    digitalWrite(pinsArray[i], LOW);
+    digitalWrite(pinsArray[next], LOW);
+  }
+}
+```
+
+<style>
+.slidev-code,
+.slidev-code-wrapper,
+pre,
+code {
+  font-size: 14px !important;
+  line-height: 1.5 !important;
+}
+</style>
+
+</div>
+
+<!--
+runOneLed هر LED را روشن می‌کند، مکث می‌کند و خاموش می‌کند. runTwoLeds هر بار LED شمارهٔ i و LED بعدی را با هم روشن و خاموش می‌کند. خط next با باقی‌مانده، بعد از LED هشتم را به LED اول برمی‌گرداند و حلقه را می‌بندد.
 -->
 
 ---
@@ -438,7 +480,7 @@ transition: fade
 </div>
 
 <!--
-در آزمایش اول هشت LED به هشت پایهٔ برد وصل است و d برابر دویست میلی‌ثانیه. فاز اول: هر LED روشن می‌شود، دویست میلی‌ثانیه می‌ماند و خاموش می‌شود؛ نتیجه یک نقطهٔ نور است که دور حلقه می‌چرخد. فاز دوم: دو LED مجاور با هم روشن می‌شوند. روی هم هشت گام فاز اول و هشت گام فاز دوم داریم، یعنی شانزده گام؛ با دویست میلی‌ثانیه برای هر گام یک دور حدود سه و دو دهم ثانیه طول می‌کشد. انیمیشن سمت چپ همین الگو را زنده نشان می‌دهد.
+در آزمایش اول هشت LED به هشت پایهٔ برد وصل است و تأخیر هر گام دویست میلی‌ثانیه. فاز اول: هر LED روشن می‌شود، دویست میلی‌ثانیه می‌ماند و خاموش می‌شود؛ نتیجه یک نقطهٔ نور است که دور حلقه می‌چرخد. فاز دوم: دو LED مجاور با هم روشن می‌شوند. روی هم هشت گام فاز اول و هشت گام فاز دوم داریم، یعنی شانزده گام؛ با دویست میلی‌ثانیه برای هر گام یک دور حدود سه و دو دهم ثانیه طول می‌کشد. انیمیشن سمت چپ همین الگو را زنده نشان می‌دهد.
 -->
 
 ---
@@ -470,7 +512,7 @@ transition: fade
   </div>
   <div class="card">
     <div class="text-sm text-[#39FF88]">ایدهٔ برنامه</div>
-    <div class="mono text-[#F2FBF6] text-lg my-2">j = (i + 1) % 8</div>
+    <div class="mono text-[#F2FBF6] text-base my-2">next = (i + 1) % numberOfLeds</div>
     <div class="text-xs text-[#8FB3A2]">باقی‌مانده، شمارهٔ بعد از آخر را به اول برمی‌گرداند.</div>
   </div>
 </div>
@@ -479,7 +521,7 @@ transition: fade
 </div>
 
 <!--
-در فاز دوم جفت‌ها این‌طور می‌آیند: یک و دو، دو و سه، و همین‌طور تا هفت و هشت. جفت آخر هشت و یک است که حلقه را می‌بندد و LED هشتم را کنار LED اول قرار می‌دهد. در برنامه این کار با باقی‌ماندهٔ تقسیم بر هشت انجام می‌شود. بعد از فاز دوم loop تمام می‌شود و خودش از ابتدا شروع می‌کند.
+در فاز دوم جفت‌ها این‌طور می‌آیند: یک و دو، دو و سه، و همین‌طور تا هفت و هشت. جفت آخر هشت و یک است که حلقه را می‌بندد و LED هشتم را کنار LED اول قرار می‌دهد. در برنامه این کار با باقی‌ماندهٔ تقسیم بر تعداد LEDها انجام می‌شود. بعد از فاز دوم loop تمام می‌شود و خودش از ابتدا شروع می‌کند.
 -->
 
 ---
@@ -529,7 +571,7 @@ transition: fade
 </div>
 
 <!--
-در آزمایش دوم چهار LED روی چهار پایهٔ اول داریم و d برابر سیصد میلی‌ثانیه است. یک نور از LED اول شروع می‌کند، یکی‌یکی جلو می‌رود و در LED چهارم می‌ماند. دور بعد دوباره از اول می‌رود ولی این بار در LED سوم می‌ایستد، بعد دوم و در نهایت اول. به این ترتیب مثل چیدن آجر روی هم نورها انباشته می‌شوند. وقتی هر چهار LED روشن شدند یک چشمک پایانی می‌زنیم و الگو از اول تکرار می‌شود.
+در آزمایش دوم چهار LED روی چهار پایهٔ اول داریم و تأخیر هر گام سیصد میلی‌ثانیه است. یک نور از LED اول شروع می‌کند، یکی‌یکی جلو می‌رود و در LED چهارم می‌ماند. دور بعد دوباره از اول می‌رود ولی این بار در LED سوم می‌ایستد، بعد دوم و در نهایت اول. به این ترتیب مثل چیدن آجر روی هم نورها انباشته می‌شوند. وقتی هر چهار LED روشن شدند یک چشمک پایانی می‌زنیم و الگو از اول تکرار می‌شود.
 -->
 
 ---
@@ -578,7 +620,7 @@ transition: fade
 </div>
 
 <!--
-این نمودار وضعیت هر LED را در هر گام نشان می‌دهد؛ مربع سبز یعنی روشن. چهار گام اول نور اول تا LED چهارم می‌رود و می‌ماند. سه گام بعدی نور تا LED سوم، دو گام بعدی تا LED دوم و یک گام آخر LED اول روشن می‌شود و می‌ماند: روی هم ده گام. بعد سه گام چشمک پایانی: همه خاموش، همه روشن، همه خاموش. در مجموع سیزده گام و حدود سه و نه دهم ثانیه برای هر چرخه. چند دستور LOW هم ابتدای loop هست تا مطمئن شویم از حالت خاموش شروع می‌کنیم.
+این نمودار وضعیت هر LED را در هر گام نشان می‌دهد؛ مربع سبز یعنی روشن. چهار گام اول نور اول تا LED چهارم می‌رود و می‌ماند. سه گام بعدی نور تا LED سوم، دو گام بعدی تا LED دوم و یک گام آخر LED اول روشن می‌شود و می‌ماند: روی هم ده گام. بعد سه گام چشمک پایانی: همه خاموش، همه روشن، همه خاموش. در مجموع سیزده گام و حدود سه و نه دهم ثانیه برای هر چرخه.
 -->
 
 ---
@@ -590,29 +632,93 @@ transition: fade
 <div class="h-full flex flex-col justify-center pr-28 pl-16">
 
 <div class="sec">بخش ۵ — آزمایش دوم</div>
-<h1 class="ttl !mb-4">منطق کد انباشت</h1>
+<h1 class="ttl !mb-4">کد انباشت (۱/۲) — حرکت نور و پر شدن خط</h1>
 
-```cpp {1-2|4-9|11-14|all}
-// round r: walk one light from LED 1 to LED (4 - r) and leave it ON
-for (int r = 0; r < 4; r++) {
-  for (int i = 0; i < 4 - r; i++) {
-    digitalWrite(leds[i], HIGH);
-    delay(d);
-    if (i < 3 - r) digitalWrite(leds[i], LOW);   // the last one stays on
+```cpp {1-9|5-7|11-15|all}
+void moveLight(int target) {
+  for (int i = 0; i <= target; i++) {
+    digitalWrite(pinsArray[i], HIGH);
+    delay(delay);
+    if (i < target) {
+      digitalWrite(pinsArray[i], LOW);
+    }
   }
 }
-// final blink: all off, all on, all off
-allWrite(LOW);  delay(d);
-allWrite(HIGH); delay(d);
-allWrite(LOW);  delay(d);
+
+void fillLine() {
+  for (int target = numberOfLeds - 1; target >= 0; target--) {
+    moveLight(target);
+  }
+}
 ```
 
-<div class="text-xs text-[#5F8272] mt-2">allWrite() تابع کمکی ساده‌ای است که همهٔ ۴ پایه را با یک مقدار می‌نویسد.</div>
+<style>
+.slidev-code,
+.slidev-code-wrapper,
+pre,
+code {
+  font-size: 14px !important;
+  line-height: 1.5 !important;
+}
+</style>
 
 </div>
 
 <!--
-هستهٔ منطق انباشت: دور اول نور تا LED چهارم می‌رود، دور دوم تا سوم و همین‌طور. شرط داخل حلقه می‌گوید همهٔ LEDها بعد از مکث خاموش شوند به جز آخرین LED هر دور که روشن می‌ماند. بعد چشمک پایانی را اجرا می‌کنیم.
+moveLight یک نور را از LED اول تا هدف می‌برد. شرط i < target می‌گوید همهٔ LEDها بعد از مکث خاموش شوند، به جز LED هدف که روشن می‌ماند. fillLine هدف را از LED چهارم شروع می‌کند و هر دور یکی کم می‌کند: چهارم، سوم، دوم و اول. همین انباشت را می‌سازد.
+-->
+
+---
+transition: fade
+---
+
+<div class="rail"></div>
+
+<div class="h-full flex flex-col justify-center pr-28 pl-16">
+
+<div class="sec">بخش ۵ — آزمایش دوم</div>
+<h1 class="ttl !mb-4">کد انباشت (۲/۲) — چشمک پایانی</h1>
+
+```cpp {1-3|5-9|11-18|20-23|all}
+const int pinsArray[] = {16, 17, 18, 19};
+const int numberOfLeds = 4;
+const int delay = 300;
+
+void setAllLeds(int state) {
+  for (int i = 0; i < numberOfLeds; i++) {
+    digitalWrite(pinsArray[i], state);
+  }
+}
+
+void blinkAllLeds() {
+  setAllLeds(LOW);
+  delay(delay);
+  setAllLeds(HIGH);
+  delay(delay);
+  setAllLeds(LOW);
+  delay(delay);
+}
+
+void loop() {
+  fillLine();
+  blinkAllLeds();
+}
+```
+
+<style>
+.slidev-code,
+.slidev-code-wrapper,
+pre,
+code {
+  font-size: 12px !important;
+  line-height: 1.45 !important;
+}
+</style>
+
+</div>
+
+<!--
+در این آزمایش چهار پایه و تأخیر سیصد میلی‌ثانیه داریم؛ setup مثل آزمایش اول است. setAllLeds همهٔ LEDها را با یک مقدار می‌نویسد. blinkAllLeds چشمک پایانی را می‌سازد: همه خاموش، همه روشن، همه خاموش. و loop اول خط را پر می‌کند و بعد چشمک می‌زند.
 -->
 
 ---
@@ -682,8 +788,8 @@ transition: slide-up
 
 <v-click>
 <div class="callout warn">
-  <div class="font-serif font-700 text-[#F2FBF6]">خوانایی در برابر کوتاهی</div>
-  <div class="text-sm text-[#CFE5D9] mt-1 leading-loose">کد را خط‌به‌خط نوشتیم تا ساده باشد؛ با آرایه‌ای از پایه‌ها و حلقهٔ for بسیار کوتاه‌تر می‌شد.</div>
+  <div class="font-serif font-700 text-[#F2FBF6]">یک تابع برای هر الگو</div>
+  <div class="text-sm text-[#CFE5D9] mt-1 leading-loose">هر الگو را در تابعی جدا نوشتیم (runOneLed، runTwoLeds، fillLine و ...) تا loop کوتاه و خوانا بماند.</div>
 </div>
 </v-click>
 
@@ -692,7 +798,7 @@ transition: slide-up
 </div>
 
 <!--
-چند نکتهٔ فنی. یک: بعضی پایه‌ها موقع روشن شدن یا ریست نقش خاص دارند و در انتخاب حالت بوت دخیل‌اند؛ اگر هنگام آپلود مشکلی پیش آمد، جدا کردن موقت LED آن پایه کمک می‌کند. دو: هر پایه جریان محدودی می‌دهد و مقاومت ضروری است. سه: دستور delay برنامه را کاملاً متوقف می‌کند و در این بازه کار دیگری ممکن نیست؛ برای این پروژه مشکلی ایجاد نمی‌کند. چهار: کد را برای خوانایی خط‌به‌خط نوشتیم و می‌شد با آرایه و حلقهٔ for کوتاه‌ترش کرد.
+چند نکتهٔ فنی. یک: بعضی پایه‌ها موقع روشن شدن یا ریست نقش خاص دارند و در انتخاب حالت بوت دخیل‌اند؛ اگر هنگام آپلود مشکلی پیش آمد، جدا کردن موقت LED آن پایه کمک می‌کند. دو: هر پایه جریان محدودی می‌دهد و مقاومت ضروری است. سه: دستور delay برنامه را کاملاً متوقف می‌کند و در این بازه کار دیگری ممکن نیست؛ برای این پروژه مشکلی ایجاد نمی‌کند. چهار: هر الگو را در یک تابع جدا نوشتیم تا loop کوتاه و خوانا بماند.
 -->
 
 ---
@@ -755,53 +861,3 @@ class: text-center
   </div>
 </div>
 
-<style>
-/* استایل‌های سراسری اسلایدها (با :global تا روی همهٔ اسلایدها اعمال شود) */
-:global(:root) { --g: #39ff88; --amber: #ffc24b; --red: #ff5c5c; --ink: #f2fbf6; --text: #cfe5d9; --muted: #8fb3a2; --faint: #5f8272; --line: #14382a; --panel: #08201a; }
-:global(.slidev-layout) { direction: rtl; text-align: right; color: var(--text); background: radial-gradient(ellipse at 50% -10%, #0e2a1f 0%, #061510 55%, #020806 100%); }
-:global(.slidev-layout pre),
-:global(.slidev-layout .slidev-code),
-:global(.slidev-layout .slidev-code-wrapper),
-:global(.ltr) { direction: ltr !important; text-align: left !important; unicode-bidi: isolate; }
-:global(.slidev-layout :not(pre) > code) { direction: ltr; unicode-bidi: isolate; color: var(--g); background: rgba(57, 255, 136, 0.08); padding: 0.05em 0.4em; border-radius: 4px; font-size: 0.85em; white-space: nowrap; }
-:global(.slidev-layout strong) { color: var(--ink); font-weight: 700; }
-:global(.slidev-layout ul) { list-style: none; padding: 0; margin: 0; }
-:global(.slidev-layout li) { position: relative; padding-inline-start: 1.5rem; margin: 0.7rem 0; }
-:global(.slidev-layout li::marker) { content: ''; }
-:global(.slidev-layout li::before) { content: ''; position: absolute; inset-inline-start: 0; top: 0.75em; width: 7px; height: 7px; background: var(--g); transform: rotate(45deg); }
-:global(.sec) { font-size: 0.95rem; font-weight: 500; color: var(--g); margin-bottom: 0.4rem; }
-:global(.sec::before) { content: '▍'; margin-inline-end: 0.5rem; }
-:global(.sec.warn) { color: var(--amber); }
-:global(.slidev-layout h1.ttl) { font-size: 2.3rem; font-weight: 800; line-height: 1.4; color: var(--ink); margin: 0 0 1.6rem 0; padding: 0; border: 0; opacity: 1; }
-:global(.mono) { font-family: 'JetBrains Mono', monospace; direction: ltr; unicode-bidi: isolate; }
-:global(.card) { border: 1px solid var(--line); background: var(--panel); padding: 1rem 1.25rem; border-radius: 6px; }
-:global(.callout) { border-inline-start: 3px solid var(--g); background: rgba(57, 255, 136, 0.06); padding: 0.7rem 1.2rem; }
-:global(.callout.warn) { border-color: var(--amber); background: rgba(255, 194, 75, 0.06); }
-:global(.rail) { position: absolute; right: 0; top: 0; bottom: 0; width: 56px; overflow: hidden; pointer-events: none; opacity: 0.75; }
-:global(.rail::before) { content: ''; position: absolute; inset: 0; background-image: radial-gradient(circle at 28px 20px, rgba(57, 255, 136, 0.25) 0, rgba(57, 255, 136, 0.25) 3px, transparent 4px); background-size: 56px 40px; }
-:global(.rail::after) { content: ''; position: absolute; right: 0; top: 0; width: 56px; height: 40px; background: radial-gradient(circle at 28px 20px, #39ff88 0, #39ff88 3px, rgba(57, 255, 136, 0.35) 4px, transparent 13px); animation: railchase 4s steps(14) infinite; }
-@keyframes -global-railchase { from { transform: translateY(0); } to { transform: translateY(560px); } }
-:global(.led) { position: relative; width: 28px; height: 28px; }
-:global(.led .base) { position: absolute; inset: 0; border-radius: 50%; border: 2px solid var(--c); background: rgba(255, 255, 255, 0.03); opacity: 0.4; }
-:global(.led .glow) { position: absolute; inset: 0; border-radius: 50%; background: var(--c); box-shadow: 0 0 16px 5px var(--c); opacity: 0; }
-:global(.lring .glow) { animation: slot16 3.2s linear infinite; animation-delay: calc(var(--s) * 0.2s); }
-:global(.chase .glow) { animation: slot8 1.6s linear infinite; animation-delay: calc(var(--s) * 0.2s); box-shadow: 0 0 10px 3px var(--c); }
-:global(.bline .glow) { animation: slot13 3.9s linear infinite; animation-delay: calc(var(--s) * 0.3s); box-shadow: 0 0 22px 7px var(--c); }
-@keyframes -global-slot16 { 0%, 6.25% { opacity: 1; } 6.26%, 100% { opacity: 0; } }
-@keyframes -global-slot8 { 0%, 12.5% { opacity: 1; } 12.6%, 100% { opacity: 0; } }
-@keyframes -global-slot13 { 0%, 7.69% { opacity: 1; } 7.7%, 100% { opacity: 0; } }
-:global(.ph1) { animation: ph1 3.2s steps(1, end) infinite; }
-:global(.ph2) { animation: ph2 3.2s steps(1, end) infinite; }
-@keyframes -global-ph1 { 0% { opacity: 1; } 50% { opacity: 0.25; } 100% { opacity: 0.25; } }
-@keyframes -global-ph2 { 0% { opacity: 0.25; } 50% { opacity: 1; } 100% { opacity: 1; } }
-:global(.wire) { fill: none; stroke: #39ff88; stroke-width: 2.5; stroke-dasharray: 6 5; animation: flow 0.6s linear infinite, dim 2s step-end infinite; }
-@keyframes -global-flow { to { stroke-dashoffset: -11; } }
-@keyframes -global-dim { 0% { opacity: 1; } 50% { opacity: 0.12; } 100% { opacity: 0.12; } }
-:global(.sglow) { filter: blur(10px); opacity: 0; animation: vis 2s step-end infinite; }
-:global(.hi) { animation: vis 2s step-end infinite; }
-:global(.lo) { animation: invis 2s step-end infinite; }
-@keyframes -global-vis { 0% { opacity: 1; } 50% { opacity: 0; } 100% { opacity: 0; } }
-@keyframes -global-invis { 0% { opacity: 0; } 50% { opacity: 1; } 100% { opacity: 1; } }
-:global(.tcursor) { position: absolute; top: 0; bottom: 0; left: 0; width: calc(100% / 13); border: 1.5px solid var(--amber); border-radius: 4px; background: rgba(255, 194, 75, 0.08); animation: tcur 3.9s steps(13, end) infinite; pointer-events: none; }
-@keyframes -global-tcur { from { transform: translateX(0); } to { transform: translateX(1300%); } }
-</style>
